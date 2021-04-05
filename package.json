@@ -1,10 +1,10 @@
 {
   "name": "react-duck-extensions",
-  "version": "0.9.1",
+  "version": "0.9.4",
   "description": "React.js ducks extensions: reusable ducks with Redux, Redux-Sagas and Immer",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "repository": "git@github.com:ipomazkin/react-duck-extensions.git",
+  "repository": "https://github.com/ipomazkin/react-duck-extensions",
   "author": "Ilya Pomazkin <ipomazkin.dev@pm.me>",
   "license": "GPL-3.0-only",
   "scripts": {
