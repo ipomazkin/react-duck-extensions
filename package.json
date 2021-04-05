@@ -1,0 +1,39 @@
+{
+  "name": "react-duck-extensions",
+  "version": "0.9.1",
+  "description": "React.js ducks extensions: reusable ducks with Redux, Redux-Sagas and Immer",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": "git@github.com:ipomazkin/react-duck-extensions.git",
+  "author": "Ilya Pomazkin <ipomazkin.dev@pm.me>",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "lint": "eslint './src/**/*.{js,ts,tsx}' --quiet --fix",
+    "publish": "npm publish --access=public"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.37",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-airbnb-typescript-prettier": "^4.2.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.5.4",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "@types/react-redux": "^7.1.16",
+    "immer": "^9.0.1",
+    "redux": "^4.0.5",
+    "redux-saga": "^1.1.3"
+  }
+}
