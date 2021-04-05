@@ -1,6 +1,6 @@
 {
   "name": "react-duck-extensions",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "React.js ducks extensions: reusable ducks with Redux, Redux-Sagas and Immer",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

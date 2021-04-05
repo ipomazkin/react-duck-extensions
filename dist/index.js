@@ -32,16 +32,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./StorageExtension", "./Duck", "./reduxStack"], factory);
+        define(["require", "exports", "./StorageExtension", "./StateExtension", "./Duck", "./reduxStack"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var StorageExtension = __importStar(require("./StorageExtension"));
+    var StateExtension = __importStar(require("./StateExtension"));
     var Duck = __importStar(require("./Duck"));
     var reduxStack = __importStar(require("./reduxStack"));
     exports.default = {
         StorageExtension: StorageExtension,
+        StateExtension: StateExtension,
         Duck: Duck,
         reduxStack: reduxStack,
     };
