@@ -294,4 +294,5 @@ tests/
 .prettierrc.js
 jest.config.js
 tsconfig.json
-
+coverage/
+CHANGELOG.md

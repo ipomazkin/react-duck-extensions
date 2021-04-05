@@ -1,6 +1,6 @@
 {
   "name": "react-duck-extensions",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "React.js ducks extensions: reusable ducks with Redux, Redux-Sagas and Immer",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -9,7 +9,7 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "jest --collect-coverage",
     "coverage": "jest --coverage",
     "lint": "eslint './src/**/*.{js,ts,tsx}' --quiet --fix",
     "publish": "npm publish --access=public"
