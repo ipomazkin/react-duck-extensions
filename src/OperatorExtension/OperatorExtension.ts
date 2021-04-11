@@ -22,6 +22,7 @@ import { Duck } from '../Duck';
 import { ActionNamespaced, RootState } from '../reduxStack';
 import * as Operation from './Operation';
 import { Generator } from "../../libs/Generator";
+import produce from "immer";
 
 // Reducer state, compatible with this extension
 export interface CompatibleState {
@@ -295,6 +296,37 @@ export class DuckExtension extends Duck<CompatibleState, typeof ActionTypes, Ext
       if (a._namespace !== namespace) return s;
 
       switch (a.type) {
+        case ActionTypes.Start:
+          return produce(s, ns => {
+            let idx = ns[this.options.fieldKey].findIndex(
+              (el: Operation.Operation) => el.type === a.operationType && el.id === a.id
+            );
+
+            if (idx < 0) {
+              let operation = Operation.createOperation(a.type, a.id);
+              ns[this.options.fieldKey].push(operation);
+              idx = ns[this.options.fieldKey].length;
+            }
+
+            ns[this.options.fieldKey][idx].cacheID = a.cacheID;
+            ns[this.options.fieldKey][idx].progress = a.progress;
+            ns[this.options.fieldKey][idx].params = a.params;
+          });
+
+        case ActionTypes.Reset:
+          return produce(s, ns => {
+            let idx = ns[this.options.fieldKey].findIndex(
+              (el: Operation.Operation) => el.type === a.operationType && el.id === a.id
+            ),
+              operation = Operation.createOperation(a.type, a.id);
+
+            if (idx < 0) {
+              ns[this.options.fieldKey].push(operation);
+            } else {
+              ns[this.options.fieldKey][idx] = operation;
+            }
+          });
+
         default:
           return s;
       }
@@ -371,6 +403,7 @@ export class DuckExtension extends Duck<CompatibleState, typeof ActionTypes, Ext
         if (!handlerConf) return;
         const handler: Operation.Handler = handlerConf.handler;
 
+        // todo add caching handing
         yield put(start({
           type: a.operationType,
           id: a.id,
