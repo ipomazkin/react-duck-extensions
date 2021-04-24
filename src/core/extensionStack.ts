@@ -22,7 +22,7 @@ export interface ActionTypeMap<V = string> {
  * Builder options interface
  */
 export interface ExtensionDuckBuilderOptions {
-  nsPostfix: string,
+  nsPostfix?: string,
 }
 
 /**

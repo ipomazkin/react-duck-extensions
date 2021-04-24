@@ -12,7 +12,7 @@
  * It's an example duck
  ************************************************************************** */
 import { Action } from '../core/reduxStack';
-import * as StateExtension from './index';
+import * as StateExtension from './StateExtension';
 
 const NAMESPACE = 'reducerNamespace';
 

@@ -11,7 +11,7 @@
 /** *************************************************************************
  * It's an example duck
  ************************************************************************** */
-import { Action } from '../reduxStack';
+import { Action } from '../core/reduxStack';
 import * as StorageExt from './index';
 
 const NAMESPACE = 'reducerNamespace';
@@ -23,7 +23,7 @@ interface NewsItem {
   content: string | null;
 }
 
-const newsStorageExt = new StorageExt.DuckExtension<NewsItem>(NEWS_STORAGE_NAMESPACE, { key: 'news' });
+const newsStorageExt = new StorageExt.StorageExtensionBuilder<NewsItem>(NEWS_STORAGE_NAMESPACE, { key: 'news' }).make();
 
 interface State {}
 

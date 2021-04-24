@@ -9,7 +9,7 @@
  */
 
 import * as StorageExtension from './StorageExtension';
-import * as StateExtension from './StateExtension';
+import * as StateExtension from './StateExtension/StateExtension';
 import * as core from './core';
 
 export default {
