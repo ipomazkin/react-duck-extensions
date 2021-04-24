@@ -18,7 +18,7 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Duck = void 0;
+    exports.DuckStack = void 0;
     /**
      * Abstract duck class. Use for inheritance or duck extensions
      */
@@ -40,5 +40,5 @@
         };
         return Duck;
     }());
-    exports.Duck = Duck;
+    exports.DuckStack = Duck;
 });

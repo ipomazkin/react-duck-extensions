@@ -8,12 +8,12 @@
  * (at your option) any later version.
  */
 
-import * as StorageExtension from './StorageExtension';
-import * as StateExtension from './StateExtension';
-import * as core from './core';
+import * as reduxStack from './reduxStack';
+import * as duckStack from './duckStack';
+import * as extensionStack from './extensionStack';
 
 export default {
-  StorageExtension,
-  StateExtension,
-  core
-}
+  reduxStack,
+  duckStack,
+  extensionStack,
+};
