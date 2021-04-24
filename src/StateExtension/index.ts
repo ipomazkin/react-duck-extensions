@@ -8,4 +8,4 @@
  * (at your option) any later version.
  */
 
-export * from './StateExtension';
+export * as StateExtension from './StateExtension';

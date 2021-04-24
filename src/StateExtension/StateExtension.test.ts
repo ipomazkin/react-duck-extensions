@@ -12,17 +12,16 @@ import * as Ext from "./StateExtension";
 
 describe("Action creators", () => {
   let namespace = 'test',
-    ext = new Ext.DuckExtension(namespace);
+    ext = new Ext.StateExtensionBuilder(namespace).make();
 
   it('set: one field', () => {
     expect(ext.actionCreators.set({
       some: 1,
     })).toEqual({
-      type: ext.actionTypes.Set,
+      type: ext.actionTypes[Ext.ActionTypes.Set],
       values: {
         some: 1,
       },
-      _namespace: namespace,
     })
   });
 
@@ -32,21 +31,19 @@ describe("Action creators", () => {
       foo: 2,
       bar: 3,
     })).toEqual({
-      type: ext.actionTypes.Set,
+      type: ext.actionTypes[Ext.ActionTypes.Set],
       values: {
         some: 1,
         foo: 2,
         bar: 3,
       },
-      _namespace: namespace,
     })
   });
 
   it('set: zero fields', () => {
     expect(ext.actionCreators.set({})).toEqual({
-      type: ext.actionTypes.Set,
+      type: ext.actionTypes[Ext.ActionTypes.Set],
       values: {},
-      _namespace: namespace,
     })
   });
 });
@@ -54,7 +51,7 @@ describe("Action creators", () => {
 
 describe('Reducer', () => {
   let namespace = 'test',
-    ext = new Ext.DuckExtension(namespace);
+    ext = new Ext.StateExtensionBuilder(namespace).make();
 
   it('set action: one field', () => {
     let state: Ext.CompatibleState = {
@@ -112,7 +109,7 @@ describe('Reducer', () => {
 
 describe('Selectors', () => {
   let namespace = 'test',
-    ext = new Ext.DuckExtension(namespace),
+    ext = new Ext.StateExtensionBuilder(namespace).make(),
     rootState = {
       [namespace]: {
         one: true,
