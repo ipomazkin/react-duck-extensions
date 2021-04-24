@@ -9,13 +9,11 @@
  */
 
 import * as StorageExtension from './StorageExtension';
-import * as StateExtension from './StateExtension';
-import * as Duck from './Duck';
-import * as reduxStack from './reduxStack';
+import * as StateExtension from './StateExtension/StateExtension';
+import * as core from './core';
 
 export default {
   StorageExtension,
   StateExtension,
-  Duck,
-  reduxStack,
+  core
 }

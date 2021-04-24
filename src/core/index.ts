@@ -8,4 +8,12 @@
  * (at your option) any later version.
  */
 
-export * from './StateExtension';
+import * as reduxStack from './reduxStack';
+import * as duckStack from './duckStack';
+import * as extensionStack from './extensionStack';
+
+export default {
+  reduxStack,
+  duckStack,
+  extensionStack,
+};

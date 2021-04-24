@@ -17,103 +17,91 @@ describe("Action creators", function () {
   }
 
   let namespace = 'test',
-    ext = new Ext.DuckExtension<TestItem>(namespace, { key: 'test' }),
+    ext = new Ext.StorageExtensionBuilder<TestItem>(namespace, { key: 'test' }).make(),
     testItem: TestItem = { id: 1, title: 'some' },
     testItem2: TestItem = { id: 2, title: 'some' };
 
   it('add', () => {
     expect(ext.actionCreators.add(testItem)).toEqual({
-      type: ext.actionTypes.Add,
+      type: ext.actionTypes[Ext.ActionTypes.Add],
       item: testItem,
-      _namespace: namespace,
     });
   });
 
   it('addBulk', () => {
     expect(ext.actionCreators.addBulk([testItem, testItem2])).toEqual({
-      type: ext.actionTypes.AddBulk,
+      type: ext.actionTypes[Ext.ActionTypes.AddBulk],
       items: [testItem, testItem2],
-      _namespace: namespace,
     });
   });
 
   it('replace', () => {
     expect(ext.actionCreators.replace(testItem)).toEqual({
-      type: ext.actionTypes.Replace,
+      type: ext.actionTypes[Ext.ActionTypes.Replace],
       item: testItem,
-      _namespace: namespace,
     });
   });
 
   it('replaceBulk', () => {
     expect(ext.actionCreators.replaceBulk([testItem, testItem2])).toEqual({
-      type: ext.actionTypes.ReplaceBulk,
+      type: ext.actionTypes[Ext.ActionTypes.ReplaceBulk],
       items: [testItem, testItem2],
-      _namespace: namespace,
     });
   });
 
   it('addOrReplace', () => {
     expect(ext.actionCreators.addOrReplace(testItem)).toEqual({
-      type: ext.actionTypes.AddOrReplace,
+      type: ext.actionTypes[Ext.ActionTypes.AddOrReplace],
       item: testItem,
-      _namespace: namespace,
     });
   });
 
   it('addOrReplaceBulk', () => {
     expect(ext.actionCreators.addOrReplaceBulk([testItem, testItem2])).toEqual({
-      type: ext.actionTypes.AddOrReplaceBulk,
+      type: ext.actionTypes[Ext.ActionTypes.AddOrReplaceBulk],
       items: [testItem, testItem2],
-      _namespace: namespace,
     });
   });
 
   it('update', () => {
     expect(ext.actionCreators.update(testItem)).toEqual({
-      type: ext.actionTypes.Update,
+      type: ext.actionTypes[Ext.ActionTypes.Update],
       item: testItem,
-      _namespace: namespace,
     });
   });
 
   it('updateBulk', () => {
     expect(ext.actionCreators.updateBulk([testItem, testItem2])).toEqual({
-      type: ext.actionTypes.UpdateBulk,
+      type: ext.actionTypes[Ext.ActionTypes.UpdateBulk],
       items: [testItem, testItem2],
-      _namespace: namespace,
     });
   });
 
   it('addOrUpdate', () => {
     expect(ext.actionCreators.addOrUpdate(testItem)).toEqual({
-      type: ext.actionTypes.AddOrUpdate,
+      type: ext.actionTypes[Ext.ActionTypes.AddOrUpdate],
       item: testItem,
-      _namespace: namespace,
     });
   });
 
   it('addOrUpdateBulk', () => {
     expect(ext.actionCreators.addOrUpdateBulk([testItem, testItem2])).toEqual({
-      type: ext.actionTypes.AddOrUpdateBulk,
+      type: ext.actionTypes[Ext.ActionTypes.AddOrUpdateBulk],
       items: [testItem, testItem2],
-      _namespace: namespace,
     });
   });
 
   it('remove', () => {
     expect(ext.actionCreators.remove(testItem.id)).toEqual({
-      type: ext.actionTypes.Remove,
+      type: ext.actionTypes[Ext.ActionTypes.Remove],
       id: testItem.id,
-      _namespace: namespace,
     });
   });
 
   it('removeBulk', () => {
     expect(ext.actionCreators.removeBulk([testItem.id, testItem2.id])).toEqual({
-      type: ext.actionTypes.RemoveBulk,
+      type: ext.actionTypes[Ext.ActionTypes.RemoveBulk],
       ids: [testItem.id, testItem2.id],
-      _namespace: namespace,
     });
   });
 });
@@ -126,7 +114,7 @@ describe('Reducer', () => {
 
   let namespace = 'test',
     key = 'test',
-    ext = new Ext.DuckExtension<TestItem>(namespace, { key: key }),
+    ext = new Ext.StorageExtensionBuilder<TestItem>(namespace, { key: key }).make(),
     testItem: TestItem = { id: 1, title: 'some' },
     testItem2: TestItem = { id: 2, title: 'some' },
     newItem1 = { id: testItem.id, title: 'new1' },
@@ -393,7 +381,7 @@ describe('Selectors', () => {
 
   let namespace = 'test',
     key = 'test',
-    ext = new Ext.DuckExtension<TestItem>(namespace, { key: key }),
+    ext = new Ext.StorageExtensionBuilder<TestItem>(namespace, { key: key }).make(),
     testItem: TestItem = { id: 1, title: 'some' },
     testItem2: TestItem = { id: 2, title: 'some' },
     rootState = {
@@ -438,7 +426,7 @@ describe('Other', () => {
 
   let namespace = 'test',
     key = 'test',
-    ext = new Ext.DuckExtension<TestItem>(namespace, { key: key });
+    ext = new Ext.StorageExtensionBuilder<TestItem>(namespace, { key: key }).make();
 
   it('getInitialState', () => {
     expect(ext.getInitialState()).toEqual({

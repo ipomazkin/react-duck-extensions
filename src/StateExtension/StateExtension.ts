@@ -15,11 +15,12 @@
  */
 
 import { produce } from 'immer';
-import { Duck } from '../Duck';
-import { ActionNamespaced, RootState, Selector } from '../reduxStack';
+import { Action, ReducerState, Reducer, Selector, StoreState } from "../core/reduxStack";
+import { ExtensionDuckBuilder, ActionTypeMap } from "../core/extensionStack";
+import { Duck } from "../core/duckStack";
 
 // Reducer state, compatible with this extension
-export interface CompatibleState {
+export interface CompatibleState extends ReducerState {
   [p: string]: any;
 }
 
@@ -33,8 +34,8 @@ export enum ActionTypes {
 /** *************************************************************************
  * Actions
  ************************************************************************** */
-export interface SetAction extends ActionNamespaced {
-  type: ActionTypes.Set;
+export interface SetAction extends Action {
+  type: string;
   values: {
     [p: string]: any;
   };
@@ -42,78 +43,63 @@ export interface SetAction extends ActionNamespaced {
 
 export type ExtAction = SetAction;
 
-/** *************************************************************************
- * Extension class
- ************************************************************************** */
-export class DuckExtension extends Duck<CompatibleState, typeof ActionTypes, ExtAction, any> {
-  actionCreators: {
-    /**
-     * Sets fields in the reducer state
-     * @param values - object with new fields
-     */
-    set: (values: { [p: string]: any }) => SetAction;
-  };
-
+/**
+ * Extension interface
+ */
+export interface StateExtension extends Duck<CompatibleState, ActionTypeMap, ExtAction> {
   selectors: {
-    /**
-     * Selects field from the reducer state
-     * @param s - root state
-     * @param k - field key
-     */
-    selectField: (s: RootState, k: string) => any | undefined;
-  };
+    selectField: (s: StoreState, k: string) => any;
+  },
+  actionCreators: {
+    set: (values: { [p: string]: any }) => SetAction;
+  },
+}
 
-  constructor(namespace: string, options: any = {}) {
-    super(namespace, options);
+/**
+ * Extension factory
+ */
+export class StateExtensionBuilder extends ExtensionDuckBuilder<StateExtension, CompatibleState, ExtAction> {
+  makeActionTypes(): ActionTypeMap  {
+    return {
+      [ActionTypes.Set]: `${this.postfixedNamespace}/${ActionTypes.Set}`,
+    };
+  }
 
-    this.actionTypes = ActionTypes;
-
-    /** *************************************************************************
-     * Action creators
-     ************************************************************************** */
+  makeActions(at: ActionTypeMap) {
     const set = function (values: { [p: string]: any }): SetAction {
       return {
-        type: ActionTypes.Set,
+        type: at[ActionTypes.Set],
         values,
-        _namespace: namespace,
       };
     };
 
-    this.actionCreators = {
+    return {
       set,
-    };
+    }
+  }
 
-    /** *************************************************************************
-     * Reducer
-     ************************************************************************** */
-    this.reducer = (s, a): CompatibleState => {
-      if (a._namespace !== namespace) return s;
-
-      switch (a.type) {
-        case ActionTypes.Set:
-          return produce(s, (ns) => {
-            Object.keys(a.values).forEach((key) => {
-              ns[key] = a.values[key];
-            });
+  makeReducer(at: ActionTypeMap): Reducer<CompatibleState, ExtAction> {
+    const handlers = {
+      [at[ActionTypes.Set]]: (s: CompatibleState, a: SetAction) => {
+        return produce(s, (ns) => {
+          Object.keys(a.values).forEach((key) => {
+            ns[key] = a.values[key];
           });
-
-        default:
-          return s;
-      }
+        });
+      },
     };
 
-    /** *************************************************************************
-     * Selectors
-     ************************************************************************** */
-    const selectField: Selector<any> = (s, k: string): any => s[namespace][k];
+    return (s, a) => {
+      if (!handlers[a.type]) return s;
+      return handlers[a.type](s, a);
+    };
+  }
 
-    this.selectors = {
+  makeSelectors(): { [p: string]: Selector<any> } {
+    const selectField: Selector<any> = (s, k: string): any => s[this.namespace][k];
+
+    return {
       selectField,
     };
-
-    /** *************************************************************************
-     * Sagas
-     ************************************************************************** */
-    this.sagas = [];
   }
 }

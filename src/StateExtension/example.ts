@@ -11,12 +11,12 @@
 /** *************************************************************************
  * It's an example duck
  ************************************************************************** */
-import { Action } from '../reduxStack';
-import * as StateExtension from './index';
+import { Action } from '../core/reduxStack';
+import * as StateExtension from './StateExtension';
 
 const NAMESPACE = 'reducerNamespace';
 
-const stateExt = new StateExtension.DuckExtension(NAMESPACE);
+const stateExt = new StateExtension.StateExtensionBuilder(NAMESPACE).make();
 
 interface State {
   isOpen: boolean;

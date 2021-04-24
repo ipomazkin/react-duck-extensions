@@ -14,9 +14,11 @@
  * @version 1.0.0
  */
 
-import { produce } from 'immer';
-import { Duck, DuckOptions } from '../Duck';
-import { ActionNamespaced, RootState, Selector } from '../reduxStack';
+import { produce } from "immer";
+
+import { Duck } from '../core/duckStack';
+import { Action, Reducer, Selector, StoreState } from '../core/reduxStack';
+import { ActionTypeMap, ExtensionDuckBuilder, ExtensionDuckBuilderOptions } from "../core/extensionStack";
 
 // Reducer state, compatible with this extension
 export interface CompatibleState<SI> {
@@ -55,68 +57,68 @@ export enum ActionTypes {
 /** *************************************************************************
  * Actions
  ************************************************************************** */
-export interface AddAction extends ActionNamespaced {
-  type: ActionTypes.Add;
+export interface AddAction extends Action {
+  type: string;
   item: StorableItem;
 }
 
-export interface AddBulkAction extends ActionNamespaced {
-  type: ActionTypes.AddBulk;
+export interface AddBulkAction extends Action {
+  type: string;
   items: StorableItem[];
 }
 
-export interface ReplaceAction extends ActionNamespaced {
-  type: ActionTypes.Replace;
+export interface ReplaceAction extends Action {
+  type: string;
   item: StorableItem;
 }
 
-export interface ReplaceBulkAction extends ActionNamespaced {
-  type: ActionTypes.ReplaceBulk;
+export interface ReplaceBulkAction extends Action {
+  type: string;
   items: StorableItem[];
 }
 
-export interface AddOrReplaceAction extends ActionNamespaced {
-  type: ActionTypes.AddOrReplace;
+export interface AddOrReplaceAction extends Action {
+  type: string;
   item: StorableItem;
 }
 
-export interface AddOrReplaceBulkAction extends ActionNamespaced {
-  type: ActionTypes.AddOrReplaceBulk;
+export interface AddOrReplaceBulkAction extends Action {
+  type: string;
   items: StorableItem[];
 }
 
-export interface UpdateAction extends ActionNamespaced {
-  type: ActionTypes.Update;
+export interface UpdateAction extends Action {
+  type: string;
   item: StorableItem;
 }
 
-export interface UpdateBulkAction extends ActionNamespaced {
-  type: ActionTypes.UpdateBulk;
+export interface UpdateBulkAction extends Action {
+  type: string;
   items: StorableItem[];
 }
 
-export interface AddOrUpdateAction extends ActionNamespaced {
-  type: ActionTypes.AddOrUpdate;
+export interface AddOrUpdateAction extends Action {
+  type: string;
   item: StorableItem;
 }
 
-export interface AddOrUpdateBulkAction extends ActionNamespaced {
-  type: ActionTypes.AddOrUpdateBulk;
+export interface AddOrUpdateBulkAction extends Action {
+  type: string;
   items: StorableItem[];
 }
 
-export interface RemoveAction extends ActionNamespaced {
-  type: ActionTypes.Remove;
+export interface RemoveAction extends Action {
+  type: string;
   id: ID;
 }
 
-export interface RemoveBulkAction extends ActionNamespaced {
-  type: ActionTypes.RemoveBulk;
+export interface RemoveBulkAction extends Action {
+  type: string;
   ids: ID[];
 }
 
-export interface ResetAction extends ActionNamespaced {
-  type: ActionTypes.Reset;
+export interface ResetAction extends Action {
+  type: string;
   items: StorableItem[];
 }
 
@@ -138,7 +140,7 @@ export type ExtAction =
 /** *************************************************************************
  * Extension options
  ************************************************************************** */
-interface DuckExtensionOptions extends DuckOptions {
+interface StorageExtensionOptions extends ExtensionDuckBuilderOptions {
   /**
    * The key of storage's object in reducer's state object
    */
@@ -146,22 +148,13 @@ interface DuckExtensionOptions extends DuckOptions {
 }
 
 /** *************************************************************************
- * Extension class
+ * Extension interface
  ************************************************************************** */
-export class DuckExtension<SI extends StorableItem> extends Duck<
-  CompatibleState<SI>,
-  typeof ActionTypes,
-  ExtAction,
-  DuckExtensionOptions
-> {
+export interface StorageExtension<SI extends StorableItem> extends Duck<CompatibleState<SI>, ActionTypeMap, ExtAction> {
   /**
    * Add a field to reducer state object
    */
-  getInitialState(): CompatibleState<SI> {
-    return {
-      [this.options.key]: [] as SI[],
-    };
-  }
+  getInitialState(): CompatibleState<SI>;
 
   actionCreators: {
     /**
@@ -248,138 +241,146 @@ export class DuckExtension<SI extends StorableItem> extends Duck<
      * Selects all
      * @param s
      */
-    selectAll: (s: RootState) => SI[];
+    selectAll: (s: StoreState) => SI[];
 
     /**
      * Selects item by ID
      * @param s
      * @param id
      */
-    selectItem: (s: RootState, id: ID) => SI | null;
+    selectItem: (s: StoreState, id: ID) => SI | null;
 
     /**
      * Selects items by their IDs. If ids is empty - returns all items.
      * @param s
      * @param ids
      */
-    selectItems: (s: RootState, ids: ID[]) => SI[];
+    selectItems: (s: StoreState, ids: ID[]) => SI[];
   };
+}
 
-  constructor(namespace: string, options: DuckExtensionOptions) {
-    super(namespace, options);
+export class StorageExtensionBuilder<SI extends StorableItem>
+  extends ExtensionDuckBuilder<StorageExtension<SI>, CompatibleState<SI>, ExtAction, StorageExtensionOptions> {
 
-    this.options = options;
+  makeInitialStateGetter() {
+    return () => {
+      return {
+        [this.options.key]: [] as SI[],
+      };
+    };
+  }
 
-    this.actionTypes = ActionTypes;
+  makeActionTypes(): ActionTypeMap<string> {
+    return {
+      [ActionTypes.Add]: `${this.postfixedNamespace}/${ActionTypes.Add}`,
+      [ActionTypes.AddBulk]: `${this.postfixedNamespace}/${ActionTypes.AddBulk}`,
+      [ActionTypes.Replace]: `${this.postfixedNamespace}/${ActionTypes.Replace}`,
+      [ActionTypes.ReplaceBulk]: `${this.postfixedNamespace}/${ActionTypes.ReplaceBulk}`,
+      [ActionTypes.AddOrReplace]: `${this.postfixedNamespace}/${ActionTypes.AddOrReplace}`,
+      [ActionTypes.AddOrReplaceBulk]: `${this.postfixedNamespace}/${ActionTypes.AddOrReplaceBulk}`,
+      [ActionTypes.Update]: `${this.postfixedNamespace}/${ActionTypes.Update}`,
+      [ActionTypes.UpdateBulk]: `${this.postfixedNamespace}/${ActionTypes.UpdateBulk}`,
+      [ActionTypes.AddOrUpdate]: `${this.postfixedNamespace}/${ActionTypes.AddOrUpdate}`,
+      [ActionTypes.AddOrUpdateBulk]: `${this.postfixedNamespace}/${ActionTypes.AddOrUpdateBulk}`,
+      [ActionTypes.Remove]: `${this.postfixedNamespace}/${ActionTypes.Remove}`,
+      [ActionTypes.RemoveBulk]: `${this.postfixedNamespace}/${ActionTypes.RemoveBulk}`,
+      [ActionTypes.Reset]: `${this.postfixedNamespace}/${ActionTypes.Reset}`,
+    };
+  }
 
-    /** *************************************************************************
-     * Action creators
-     ************************************************************************** */
+  makeActions(at: ActionTypeMap) {
     const add = function (item: SI): AddAction {
       return {
-        type: ActionTypes.Add,
-        _namespace: namespace,
+        type: at[ActionTypes.Add],
         item,
       };
     };
 
     const addBulk = function (items: SI[]): AddBulkAction {
       return {
-        type: ActionTypes.AddBulk,
-        _namespace: namespace,
+        type: at[ActionTypes.AddBulk],
         items,
       };
     };
 
     const replace = function (item: SI): ReplaceAction {
       return {
-        type: ActionTypes.Replace,
-        _namespace: namespace,
+        type: at[ActionTypes.Replace],
         item,
       };
     };
 
     const replaceBulk = function (items: SI[]): ReplaceBulkAction {
       return {
-        type: ActionTypes.ReplaceBulk,
-        _namespace: namespace,
+        type: at[ActionTypes.ReplaceBulk],
         items,
       };
     };
 
     const addOrReplace = function (item: SI): AddOrReplaceAction {
       return {
-        type: ActionTypes.AddOrReplace,
-        _namespace: namespace,
+        type: at[ActionTypes.AddOrReplace],
         item,
       };
     };
 
     const addOrReplaceBulk = function (items: SI[]): AddOrReplaceBulkAction {
       return {
-        type: ActionTypes.AddOrReplaceBulk,
-        _namespace: namespace,
+        type: at[ActionTypes.AddOrReplaceBulk],
         items,
       };
     };
 
     const update = function (item: SI): UpdateAction {
       return {
-        type: ActionTypes.Update,
-        _namespace: namespace,
+        type: at[ActionTypes.Update],
         item,
       };
     };
 
     const updateBulk = function (items: SI[]): UpdateBulkAction {
       return {
-        type: ActionTypes.UpdateBulk,
-        _namespace: namespace,
+        type: at[ActionTypes.UpdateBulk],
         items,
       };
     };
 
     const addOrUpdate = function (item: SI): AddOrUpdateAction {
       return {
-        type: ActionTypes.AddOrUpdate,
-        _namespace: namespace,
+        type: at[ActionTypes.AddOrUpdate],
         item,
       };
     };
 
     const addOrUpdateBulk = function (items: SI[]): AddOrUpdateBulkAction {
       return {
-        type: ActionTypes.AddOrUpdateBulk,
-        _namespace: namespace,
+        type: at[ActionTypes.AddOrUpdateBulk],
         items,
       };
     };
 
     const remove = function (id: ID): RemoveAction {
       return {
-        type: ActionTypes.Remove,
-        _namespace: namespace,
+        type: at[ActionTypes.Remove],
         id,
       };
     };
 
     const removeBulk = function (ids: ID[]): RemoveBulkAction {
       return {
-        type: ActionTypes.RemoveBulk,
-        _namespace: namespace,
+        type: at[ActionTypes.RemoveBulk],
         ids,
       };
     };
 
     const reset = function (items: StorableItem[]): ResetAction {
       return {
-        type: ActionTypes.Reset,
-        _namespace: namespace,
+        type: at[ActionTypes.Reset],
         items,
       };
     };
 
-    this.actionCreators = {
+    return {
       add,
       addBulk,
       replace,
@@ -394,142 +395,151 @@ export class DuckExtension<SI extends StorableItem> extends Duck<
       removeBulk,
       reset,
     };
+  }
 
-    /** *************************************************************************
-     * Reducer
-     ************************************************************************** */
-    this.reducer = (s, a): CompatibleState<SI> => {
-      if (a._namespace !== namespace) return s;
+  makeReducer(at: ActionTypeMap): Reducer<CompatibleState<SI>, ExtAction> {
+    const handlers = {
+      [at[ActionTypes.Add]]: (s: CompatibleState<SI>, a: AddAction) => {
+        return produce(s, (ns) => {
+          ns[this.options.key].push(a.item);
+        });
+      },
 
-      switch (a.type) {
-        case ActionTypes.Add:
-          return produce(s, (ns) => {
-            ns[options.key].push(a.item);
+      [at[ActionTypes.AddBulk]]: (s: CompatibleState<SI>, a: AddBulkAction) => {
+        return produce(s, (ns) => {
+          a.items.forEach((item) => {
+            ns[this.options.key].push(item);
           });
+        });
+      },
 
-        case ActionTypes.AddBulk:
-          return produce(s, (ns) => {
+      [at[ActionTypes.Replace]]: (s: CompatibleState<SI>, a: ReplaceAction) => {
+        return produce(s, (ns) => {
+          const index = ns[this.options.key].findIndex((el: SI) => el.id === a.item.id);
+          if (index > -1) ns[this.options.key][index] = a.item;
+        });
+      },
+
+      [at[ActionTypes.ReplaceBulk]]: (s: CompatibleState<SI>, a: ReplaceBulkAction) => {
+        return produce(s, (ns) => {
+          if (!a.items.length) {
+            ns[this.options.key] = a.items;
+          } else {
             a.items.forEach((item) => {
-              ns[options.key].push(item);
+              const index = ns[this.options.key].findIndex((el: SI) => el.id === item.id);
+              if (index > -1) ns[this.options.key][index] = item;
             });
-          });
+          }
+        });
+      },
 
-        case ActionTypes.Replace:
-          return produce(s, (ns) => {
-            const index = ns[options.key].findIndex((el: SI) => el.id === a.item.id);
-            if (index > -1) ns[options.key][index] = a.item;
-          });
+      [at[ActionTypes.AddOrReplace]]: (s: CompatibleState<SI>, a: AddOrReplaceAction) => {
+        return produce(s, (ns) => {
+          const index = ns[this.options.key].findIndex((el: SI) => el.id === a.item.id);
+          if (index > -1) {
+            ns[this.options.key][index] = a.item;
+          } else {
+            ns[this.options.key].push(a.item);
+          }
+        });
+      },
 
-        case ActionTypes.ReplaceBulk:
-          return produce(s, (ns) => {
-            if (!a.items.length) {
-              ns[options.key] = a.items;
-            } else {
-              a.items.forEach((item) => {
-                const index = ns[options.key].findIndex((el: SI) => el.id === item.id);
-                if (index > -1) ns[options.key][index] = item;
-              });
-            }
-          });
-
-        case ActionTypes.AddOrReplace:
-          return produce(s, (ns) => {
-            const index = ns[options.key].findIndex((el: SI) => el.id === a.item.id);
+      [at[ActionTypes.AddOrReplaceBulk]]: (s: CompatibleState<SI>, a: AddOrReplaceBulkAction) => {
+        return produce(s, (ns) => {
+          a.items.forEach((item) => {
+            const index = ns[this.options.key].findIndex((el: SI) => el.id === item.id);
             if (index > -1) {
-              ns[options.key][index] = a.item;
+              ns[this.options.key][index] = item;
             } else {
-              ns[options.key].push(a.item);
+              ns[this.options.key].push(item);
             }
           });
+        });
+      },
 
-        case ActionTypes.AddOrReplaceBulk:
-          return produce(s, (ns) => {
-            a.items.forEach((item) => {
-              const index = ns[options.key].findIndex((el: SI) => el.id === item.id);
-              if (index > -1) {
-                ns[options.key][index] = item;
-              } else {
-                ns[options.key].push(item);
-              }
+      [at[ActionTypes.Update]]: (s: CompatibleState<SI>, a: UpdateAction) => {
+        return produce(s, (ns) => {
+          const index = ns[this.options.key].findIndex((el: SI) => el.id === a.item.id);
+          if (index > -1) {
+            Object.keys(a.item).forEach((k) => {
+              ns[this.options.key][index][k] = a.item[k];
             });
-          });
+          }
+        });
+      },
 
-        case ActionTypes.Update:
-          return produce(s, (ns) => {
-            const index = ns[options.key].findIndex((el: SI) => el.id === a.item.id);
+      [at[ActionTypes.UpdateBulk]]: (s: CompatibleState<SI>, a: UpdateBulkAction) => {
+        return produce(s, (ns) => {
+          a.items.forEach((item) => {
+            const index = ns[this.options.key].findIndex((el: SI) => {
+              return el.id === item.id;
+            });
             if (index > -1) {
-              Object.keys(a.item).forEach((k) => {
-                ns[options.key][index][k] = a.item[k];
+              Object.keys(item).forEach((k) => {
+                ns[this.options.key][index][k] = item[k];
               });
             }
           });
+        });
+      },
 
-        case ActionTypes.UpdateBulk:
-          return produce(s, (ns) => {
-            a.items.forEach((item) => {
-              const index = ns[options.key].findIndex((el: SI) => {
-                return el.id === item.id;
-              });
-              if (index > -1) {
-                Object.keys(item).forEach((k) => {
-                  ns[options.key][index][k] = item[k];
-                });
-              }
+      [at[ActionTypes.AddOrUpdate]]: (s: CompatibleState<SI>, a: AddOrUpdateAction) => {
+        return produce(s, (ns) => {
+          const index = ns[this.options.key].findIndex((el: SI) => el.id === a.item.id);
+          if (index > -1) {
+            Object.keys(a.item).forEach((k) => {
+              ns[this.options.key][index][k] = a.item[k];
             });
-          });
+          } else {
+            ns[this.options.key].push(a.item);
+          }
+        });
+      },
 
-        case ActionTypes.AddOrUpdate:
-          return produce(s, (ns) => {
-            const index = ns[options.key].findIndex((el: SI) => el.id === a.item.id);
+      [at[ActionTypes.AddOrUpdateBulk]]: (s: CompatibleState<SI>, a: AddOrUpdateBulkAction) => {
+        return produce(s, (ns) => {
+          a.items.forEach((item) => {
+            const index = ns[this.options.key].findIndex((el: SI) => el.id === item.id);
             if (index > -1) {
-              Object.keys(a.item).forEach((k) => {
-                ns[options.key][index][k] = a.item[k];
+              Object.keys(item).forEach((k) => {
+                ns[this.options.key][index][k] = item[k];
               });
             } else {
-              ns[options.key].push(a.item);
+              ns[this.options.key].push(item);
             }
           });
+        });
+      },
 
-        case ActionTypes.AddOrUpdateBulk:
-          return produce(s, (ns) => {
-            a.items.forEach((item) => {
-              const index = ns[options.key].findIndex((el: SI) => el.id === item.id);
-              if (index > -1) {
-                Object.keys(item).forEach((k) => {
-                  ns[options.key][index][k] = item[k];
-                });
-              } else {
-                ns[options.key].push(item);
-              }
-            });
+      [at[ActionTypes.Remove]]: (s: CompatibleState<SI>, a: RemoveAction) => {
+        return produce(s, (ns) => {
+          ns[this.options.key].splice(ns[this.options.key].findIndex((el: SI) => el.id === a.id), 1);
+        });
+      },
+
+      [at[ActionTypes.RemoveBulk]]: (s: CompatibleState<SI>, a: RemoveBulkAction) => {
+        return produce(s, (ns) => {
+          a.ids.forEach((id) => {
+            ns[this.options.key].splice(ns[this.options.key].findIndex((el: SI) => el.id === id), 1);
           });
+        });
+      },
 
-        case ActionTypes.Remove:
-          return produce(s, (ns) => {
-            ns[options.key].splice(ns[options.key].findIndex((el: SI) => el.id === a.id), 1);
-          });
-
-        case ActionTypes.RemoveBulk:
-          return produce(s, (ns) => {
-            a.ids.forEach((id) => {
-              ns[options.key].splice(ns[options.key].findIndex((el: SI) => el.id === id), 1);
-            });
-          });
-
-        case ActionTypes.Reset:
-          return produce(s, (ns) => {
-            ns[options.key].splice(0, ns[options.key].length, ...a.items);
-          });
-
-        default:
-          return s;
-      }
+      [at[ActionTypes.Reset]]: (s: CompatibleState<SI>, a: ResetAction) => {
+        return produce(s, (ns) => {
+          ns[this.options.key].splice(0, ns[this.options.key].length, ...a.items);
+        });
+      },
     };
 
-    /** *************************************************************************
-     * Selectors
-     ************************************************************************** */
-    const selectAll: Selector<SI[]> = (s) => s[namespace][options.key];
+    return (s, a) => {
+      if (!handlers[a.type]) return s;
+      return handlers[a.type](s, a as any);
+    };
+  }
+
+  makeSelectors() {
+    const selectAll: Selector<SI[]> = (s) => s[this.namespace][this.options.key];
 
     const selectItem: Selector<SI | null> = (s, id: ID) => {
       const r = selectAll(s).find((el) => el.id === id);
@@ -542,15 +552,10 @@ export class DuckExtension<SI extends StorableItem> extends Duck<
       return all.filter((el) => !!ids.find((id) => id === el.id));
     };
 
-    this.selectors = {
+    return {
       selectAll,
       selectItem,
       selectItems,
     };
-
-    /** *************************************************************************
-     * Sagas
-     ************************************************************************** */
-    this.sagas = [];
   }
 }

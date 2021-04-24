@@ -9,12 +9,19 @@
  */
 
 import * as redux from 'redux';
-import { Effect } from 'redux-saga/effects';
+import { Saga as ReduxSaga } from '@redux-saga/types';
 
 /**
  * Root state of the redux store
  */
-export interface RootState {
+export interface StoreState {
+  [p: string]: any;
+}
+
+/**
+ * State of the reducer
+ */
+export interface ReducerState {
   [p: string]: any;
 }
 
@@ -24,13 +31,6 @@ export interface RootState {
 export type Action = redux.AnyAction;
 
 /**
- * Redux action with an extra identifier - namespace. Useful for ducks extensions
- */
-export interface ActionNamespaced extends Action {
-  _namespace: string;
-}
-
-/**
  * Usual action create
  */
 export type ActionCreator<A> = redux.ActionCreator<A>;
@@ -38,18 +38,18 @@ export type ActionCreator<A> = redux.ActionCreator<A>;
 /**
  * Usual reducer
  */
-export interface Reducer<S, A> {
+export interface Reducer<S extends ReducerState, A extends Action> {
   (state: S, action: A): S;
 }
 
 /**
  * Basic selector
  */
-export interface Selector<R> {
-  (state: RootState, ...rest: any): R;
+export interface Selector<R, S extends StoreState = StoreState> {
+  (state: S, ...rest: any): R;
 }
 
 /**
  * Usual redux saga effect
  */
-export type SagaEffect = Effect;
+export type Saga = ReduxSaga;
